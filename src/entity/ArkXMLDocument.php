@@ -98,10 +98,21 @@ class ArkXMLDocument
      * @param ArkXMLWriter $writer
      * @throws Exception
      */
-    public function compose($writer){
-        $writer->startDocument($this->version,$this->encoding,$this->standalone);
+    public function compose($writer)
+    {
+        $writer->startDocument($this->version, $this->encoding, $this->standalone);
         $this->rootElement->compose($writer);
         $writer->endDocument();
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function toXML()
+    {
+        $writer = (new ArkXMLWriter());
+        $this->compose($writer);
+        return $writer->getOutputInMemory();
+    }
 }

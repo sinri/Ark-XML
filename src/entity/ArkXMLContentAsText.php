@@ -57,4 +57,12 @@ class ArkXMLContentAsText
             $writer->text($this->content);
         }
     }
+
+    /**
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
 }

@@ -6,12 +6,14 @@ namespace sinri\ark\xml\entity;
 
 use Exception;
 use SimpleXMLElement;
+use sinri\ark\core\ArkHelper;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 class ArkXMLElement
 {
     use ArkXMLContent;
 
+    const CONTENT_TYPE = 'ELEMENT';
     /**
      * @var string
      */
@@ -27,24 +29,64 @@ class ArkXMLElement
 
     public function __construct(string $elementTag)
     {
-        $this->elementTag=$elementTag;
+        $this->elementTag = $elementTag;
     }
 
     /**
-     * @return string
-     */
-    public function getElementTag(): string
-    {
-        return $this->elementTag;
-    }
-
-    /**
-     * @param string $elementTag
+     * @param SimpleXMLElement $simpleXMLElement
      * @return ArkXMLElement
      */
-    public function setElementTag(string $elementTag): ArkXMLElement
+    public static function createWithSimpleXMLElement(SimpleXMLElement $simpleXMLElement)
     {
-        $this->elementTag = $elementTag;
+        $element = new ArkXMLElement($simpleXMLElement->getName());
+        foreach ($simpleXMLElement->attributes() as $n => $v) {
+            $element->setAttribute($n, $v);
+        }
+        foreach ($simpleXMLElement->children() as $item) {
+            $element->appendSubElement(self::createWithSimpleXMLElement($item));
+        }
+        if ($simpleXMLElement->__toString() !== '') {
+            $element->appendText($simpleXMLElement->__toString());
+        }
+//        if(isset($simpleXMLElement->comment)){
+//            $element->appendComment($simpleXMLElement->comment);
+//        }
+        return $element;
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
+    public function setAttribute($name, $value)
+    {
+        $this->attributeDictionary[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param ArkXMLElement $subElement
+     * @return $this
+     */
+    public function appendSubElement($subElement)
+    {
+        $this->contentArray[] = $subElement;
+        return $this;
+    }
+
+    /**
+     * @param string $text
+     * @param bool $escapeSingleQuote
+     * @return $this
+     */
+    public function appendText(string $text, bool $escapeSingleQuote = false)
+    {
+        if ($escapeSingleQuote) {
+            $this->contentArray[] = ArkXMLContentAsText::makeFullQuotedText($text);
+        } else {
+            $this->contentArray[] = new ArkXMLContentAsText($text, $escapeSingleQuote);
+        }
         return $this;
     }
 
@@ -86,29 +128,10 @@ class ArkXMLElement
 
     /**
      * @param string $name
-     * @param string $value
-     * @return $this
-     */
-    public function setAttribute($name,$value){
-        $this->attributeDictionary[$name]=$value;
-        return $this;
-    }
-
-    /**
-     * @param string $name
      * @return $this
      */
     public function removeAttribute($name){
         unset($this->attributeDictionary[$name]);
-        return $this;
-    }
-
-    /**
-     * @param ArkXMLElement $subElement
-     * @return $this
-     */
-    public function appendSubElement($subElement){
-        $this->contentArray[]=$subElement;
         return $this;
     }
 
@@ -127,20 +150,6 @@ class ArkXMLElement
      */
     public function appendCData(string $cdata){
         $this->contentArray[] = new ArkXMLContentAsCData($cdata);
-        return $this;
-    }
-
-    /**
-     * @param string $text
-     * @param bool $escapeSingleQuote
-     * @return $this
-     */
-    public function appendText(string $text,bool $escapeSingleQuote=false){
-        if ($escapeSingleQuote) {
-            $this->contentArray[] = ArkXMLContentAsText::makeFullQuotedText($text);
-        } else {
-            $this->contentArray[] = new ArkXMLContentAsText($text, $escapeSingleQuote);
-        }
         return $this;
     }
 
@@ -204,31 +213,115 @@ class ArkXMLElement
         $writer->endElement();
     }
 
-    /**
-     * @param SimpleXMLElement $simpleXMLElement
-     * @return ArkXMLElement
-     */
-    public static function createWithSimpleXMLElement(SimpleXMLElement $simpleXMLElement){
-        $element=new ArkXMLElement($simpleXMLElement->getName());
-        foreach ($simpleXMLElement->attributes() as $n=>$v){
-            $element->setAttribute($n,$v);
-        }
-        foreach ($simpleXMLElement->children() as $item){
-            $element->appendSubElement(self::createWithSimpleXMLElement($item));
-        }
-        if ($simpleXMLElement->__toString() !== '') {
-            $element->appendText($simpleXMLElement->__toString());
-        }
-//        if(isset($simpleXMLElement->comment)){
-//            $element->appendComment($simpleXMLElement->comment);
-//        }
-        return $element;
-    }
-
     public function getContentType()
     {
         return self::CONTENT_TYPE;
     }
 
-    const CONTENT_TYPE = 'ELEMENT';
+    /**
+     * @param int $index
+     * @return ArkXMLContent|null
+     * @since 0.3
+     */
+    public function getContentByIndex(int $index)
+    {
+        return ArkHelper::readTarget($this->contentArray, [$index]);
+    }
+
+    /**
+     * @param string $tagName
+     * @param array $attributes [key=>value, ...]
+     * @return ArkXMLElement[]
+     * @since 0.3
+     */
+    public function getSubNodesWithFilterConditions(string $tagName, array $attributes = [])
+    {
+        $allSubElements = $this->getAllSubElements();
+//        echo __METHOD__.'@'.__LINE__.' -> '.(count($allSubElements)).PHP_EOL;
+        return array_filter($allSubElements, function ($item) use ($attributes, $tagName) {
+//            echo __METHOD__.'@'.__LINE__.' checking element tag is '.$item->getElementTag().PHP_EOL;
+            if ($item->getElementTag() !== $tagName) {
+                return false;
+            }
+            foreach ($attributes as $attributeName => $attributeValue) {
+//                echo __METHOD__.'@'.__LINE__.' checking element attribute ['.$attributeName.'] is '.$item->getAttribute($attributeName).PHP_EOL;
+                if ($item->getAttribute($attributeName) !== $attributeValue) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    /**
+     * @return ArkXMLElement[]
+     * @since 0.3
+     */
+    public function getAllSubElements()
+    {
+        $nodes = [];
+        foreach ($this->contentArray as $content) {
+            if ($content->getContentType() === ArkXMLElement::CONTENT_TYPE) {
+                $nodes[] = $content;
+            }
+        }
+        return $nodes;
+    }
+
+    /**
+     * @return string
+     */
+    public function getElementTag(): string
+    {
+        return $this->elementTag;
+    }
+
+    /**
+     * @param string $elementTag
+     * @return ArkXMLElement
+     */
+    public function setElementTag(string $elementTag): ArkXMLElement
+    {
+        $this->elementTag = $elementTag;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return string|null
+     * @since 0.3
+     */
+    public function getAttribute($name)
+    {
+        return ArkHelper::readTarget($this->attributeDictionary, [$name]);
+    }
+
+    /**
+     * @return string
+     * @since 0.3
+     */
+    public function getTextContent()
+    {
+        $text = '';
+        foreach ($this->contentArray as $content) {
+            if (
+                $content->getContentType() === ArkXMLContentAsText::CONTENT_TYPE
+                || $content->getContentType() === ArkXMLContentAsCData::CONTENT_TYPE
+            ) {
+                $text .= $content->getContent();
+            }
+        }
+        return $text;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function toXML()
+    {
+        $writer = (new ArkXMLWriter());
+        $this->compose($writer);
+        return $writer->getOutputInMemory();
+    }
 }

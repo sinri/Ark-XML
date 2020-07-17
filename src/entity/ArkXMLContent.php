@@ -25,4 +25,14 @@ trait ArkXMLContent
      * @throws Exception
      */
     abstract public function compose(ArkXMLWriter $writer);
+
+    /**
+     * @return string
+     * @since 0.3
+     */
+    public function getContent(): string
+    {
+        // should be overrode if needed
+        return __CLASS__;
+    }
 }

@@ -38,4 +38,12 @@ class ArkXMLContentAsComment
     {
         $writer->writeComment($this->content);
     }
+
+    /**
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
 }

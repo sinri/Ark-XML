@@ -7,6 +7,7 @@ namespace sinri\ark\xml\writer;
 use Exception;
 use sinri\ark\core\ArkHelper;
 use sinri\ark\xml\entity\ArkXMLDocument;
+use sinri\ark\xml\entity\ArkXMLElement;
 use XMLWriter;
 
 class ArkXMLWriter
@@ -589,9 +590,23 @@ class ArkXMLWriter
      * @param ArkXMLDocument $document
      * @return int|string
      * @throws Exception
+     * @deprecated
      */
-    public function composeDocumentAndFlush($document){
+    public function composeDocumentAndFlush($document)
+    {
         $document->compose($this);
+        return $this->flush();
+    }
+
+    /**
+     * @param ArkXMLElement $element
+     * @return int|string
+     * @throws Exception
+     * @deprecated
+     */
+    public function composeElementAndFlush($element)
+    {
+        $element->compose($this);
         return $this->flush();
     }
 }
