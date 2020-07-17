@@ -4,6 +4,7 @@
 namespace sinri\ark\xml\entity;
 
 
+use Exception;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 class ArkXMLDocument
@@ -95,7 +96,7 @@ class ArkXMLDocument
 
     /**
      * @param ArkXMLWriter $writer
-     * @throws \Exception
+     * @throws Exception
      */
     public function compose($writer){
         $writer->startDocument($this->version,$this->encoding,$this->standalone);

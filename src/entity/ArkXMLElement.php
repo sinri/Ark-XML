@@ -6,11 +6,12 @@ namespace sinri\ark\xml\entity;
 
 use Exception;
 use SimpleXMLElement;
-use sinri\ark\core\ArkHelper;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 class ArkXMLElement
 {
+    use ArkXMLContent;
+
     /**
      * @var string
      */
@@ -18,9 +19,9 @@ class ArkXMLElement
     /**
      * @var string[] [name=>value, ...]
      */
-    protected $attributeDictionary=[];
+    protected $attributeDictionary = [];
     /**
-     * @var array
+     * @var ArkXMLContent[]
      */
     protected $contentArray=[];
 
@@ -116,7 +117,7 @@ class ArkXMLElement
      * @return $this
      */
     public function appendComment(string $comment){
-        $this->contentArray[]=['comment',$comment];
+        $this->contentArray[] = new ArkXMLContentAsComment($comment);
         return $this;
     }
 
@@ -125,7 +126,7 @@ class ArkXMLElement
      * @return $this
      */
     public function appendCData(string $cdata){
-        $this->contentArray[]=['cdata',$cdata];
+        $this->contentArray[] = new ArkXMLContentAsCData($cdata);
         return $this;
     }
 
@@ -135,11 +136,10 @@ class ArkXMLElement
      * @return $this
      */
     public function appendText(string $text,bool $escapeSingleQuote=false){
-        if($escapeSingleQuote) {
-            $content = htmlspecialchars($text, ENT_QUOTES | ENT_XML1, 'UTF-8');
-            $this->contentArray[] = ['raw',$content];
-        }else{
-            $this->contentArray[] = $text;
+        if ($escapeSingleQuote) {
+            $this->contentArray[] = ArkXMLContentAsText::makeFullQuotedText($text);
+        } else {
+            $this->contentArray[] = new ArkXMLContentAsText($text, $escapeSingleQuote);
         }
         return $this;
     }
@@ -149,7 +149,7 @@ class ArkXMLElement
      * @return $this
      */
     public function appendRawString(string $text){
-        $this->contentArray[]=['raw',$text];
+        $this->contentArray[] = new ArkXMLContentAsText($text, true);
         return $this;
     }
 
@@ -165,30 +165,40 @@ class ArkXMLElement
             $writer->writeAttribute($name,$value);
         }
 
-        foreach ($this->contentArray as $item){
-            if(is_a($item,ArkXMLElement::class)){
-                $item->compose($writer);
-            }elseif(is_array($item)){
-                $type=ArkHelper::readTarget($item,[0]);
-                $content=ArkHelper::readTarget($item,[1]);
-                switch ($type){
-                    case 'comment':
-//                        $writer->startComment()->text($content)->endComment();
-                        $writer->writeComment($content);
-                        break;
-                    case 'cdata':
-//                        $writer->startCdata()->text($content)->endCData();
-                        $writer->writeCdata($content);
-                        break;
-                    case 'raw':
-                        $writer->writeRaw($content);
-                        break;
-                    default:
-                        throw new Exception("unknown format");
-                }
-            }else{
-                $writer->text($item);
-            }
+        foreach ($this->contentArray as $item) {
+            // @since 0.2 changed the logic
+
+//            if(!is_a($item,ArkXMLContent::class)){
+//                throw new Exception("unknown content format");
+//            }
+
+            $item->compose($writer);
+
+
+//            if(is_a($item,ArkXMLElement::class)){
+//                $item->compose($writer);
+//            }
+//            elseif(is_array($item)){
+//                $type=ArkHelper::readTarget($item,[0]);
+//                $content=ArkHelper::readTarget($item,[1]);
+//                switch ($type){
+//                    case 'comment':
+////                        $writer->startComment()->text($content)->endComment();
+//                        $writer->writeComment($content);
+//                        break;
+//                    case 'cdata':
+////                        $writer->startCdata()->text($content)->endCData();
+//                        $writer->writeCdata($content);
+//                        break;
+//                    case 'raw':
+//                        $writer->writeRaw($content);
+//                        break;
+//                    default:
+//                        throw new Exception("unknown format");
+//                }
+//            }else{
+//                $writer->text($item);
+//            }
         }
 
         $writer->endElement();
@@ -206,7 +216,7 @@ class ArkXMLElement
         foreach ($simpleXMLElement->children() as $item){
             $element->appendSubElement(self::createWithSimpleXMLElement($item));
         }
-        if($simpleXMLElement->__toString()!=='') {
+        if ($simpleXMLElement->__toString() !== '') {
             $element->appendText($simpleXMLElement->__toString());
         }
 //        if(isset($simpleXMLElement->comment)){
@@ -214,4 +224,11 @@ class ArkXMLElement
 //        }
         return $element;
     }
+
+    public function getContentType()
+    {
+        return self::CONTENT_TYPE;
+    }
+
+    const CONTENT_TYPE = 'ELEMENT';
 }
