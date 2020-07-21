@@ -12,7 +12,9 @@
   "require": {
     "ext-xmlwriter": "*",
     "sinri/ark-core": "~2.7.2",
-    "ext-simplexml": "*"
+    "ext-simplexml": "*",
+    "ext-mbstring": "*",
+    "ext-dom": "*"
   },
   "autoload": {
     "psr-4": {
