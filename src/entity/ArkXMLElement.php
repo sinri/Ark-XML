@@ -4,9 +4,9 @@
 namespace sinri\ark\xml\entity;
 
 
-use Exception;
 use SimpleXMLElement;
 use sinri\ark\core\ArkHelper;
+use sinri\ark\xml\exception\ArkXMLComposeError;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 class ArkXMLElement
@@ -36,7 +36,7 @@ class ArkXMLElement
      * @param SimpleXMLElement $simpleXMLElement
      * @return ArkXMLElement
      */
-    public static function createWithSimpleXMLElement(SimpleXMLElement $simpleXMLElement)
+    public static function createWithSimpleXMLElement(SimpleXMLElement $simpleXMLElement): ArkXMLElement
     {
         $element = new ArkXMLElement($simpleXMLElement->getName());
         foreach ($simpleXMLElement->attributes() as $n => $v) {
@@ -59,7 +59,7 @@ class ArkXMLElement
      * @param string $value
      * @return $this
      */
-    public function setAttribute($name, $value)
+    public function setAttribute(string $name, string $value): ArkXMLElement
     {
         $this->attributeDictionary[$name] = $value;
         return $this;
@@ -69,7 +69,7 @@ class ArkXMLElement
      * @param ArkXMLElement $subElement
      * @return $this
      */
-    public function appendSubElement($subElement)
+    public function appendSubElement(ArkXMLElement $subElement): ArkXMLElement
     {
         $this->contentArray[] = $subElement;
         return $this;
@@ -80,7 +80,7 @@ class ArkXMLElement
      * @param bool $escapeSingleQuote
      * @return $this
      */
-    public function appendText(string $text, bool $escapeSingleQuote = false)
+    public function appendText(string $text, bool $escapeSingleQuote = false): ArkXMLElement
     {
         if ($escapeSingleQuote) {
             $this->contentArray[] = ArkXMLContentAsText::makeFullQuotedText($text);
@@ -130,7 +130,8 @@ class ArkXMLElement
      * @param string $name
      * @return $this
      */
-    public function removeAttribute($name){
+    public function removeAttribute(string $name): ArkXMLElement
+    {
         unset($this->attributeDictionary[$name]);
         return $this;
     }
@@ -139,7 +140,8 @@ class ArkXMLElement
      * @param string $comment
      * @return $this
      */
-    public function appendComment(string $comment){
+    public function appendComment(string $comment): ArkXMLElement
+    {
         $this->contentArray[] = new ArkXMLContentAsComment($comment);
         return $this;
     }
@@ -148,7 +150,8 @@ class ArkXMLElement
      * @param string $cdata
      * @return $this
      */
-    public function appendCData(string $cdata){
+    public function appendCData(string $cdata): ArkXMLElement
+    {
         $this->contentArray[] = new ArkXMLContentAsCData($cdata);
         return $this;
     }
@@ -157,63 +160,33 @@ class ArkXMLElement
      * @param string $text
      * @return $this
      */
-    public function appendRawString(string $text){
+    public function appendRawString(string $text): ArkXMLElement
+    {
         $this->contentArray[] = new ArkXMLContentAsText($text, true);
         return $this;
     }
 
     /**
      * @param ArkXMLWriter $writer
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function compose($writer){
+    public function compose(ArkXMLWriter $writer)
+    {
         $writer->startElement($this->elementTag);
 
         foreach ($this->attributeDictionary as $name => $value) {
-            //$writer->startAttribute($name)->text($value)->endAttribute();
-            $writer->writeAttribute($name,$value);
+            $writer->writeAttribute($name, $value);
         }
 
         foreach ($this->contentArray as $item) {
             // @since 0.2 changed the logic
-
-//            if(!is_a($item,ArkXMLContent::class)){
-//                throw new Exception("unknown content format");
-//            }
-
             $item->compose($writer);
-
-
-//            if(is_a($item,ArkXMLElement::class)){
-//                $item->compose($writer);
-//            }
-//            elseif(is_array($item)){
-//                $type=ArkHelper::readTarget($item,[0]);
-//                $content=ArkHelper::readTarget($item,[1]);
-//                switch ($type){
-//                    case 'comment':
-////                        $writer->startComment()->text($content)->endComment();
-//                        $writer->writeComment($content);
-//                        break;
-//                    case 'cdata':
-////                        $writer->startCdata()->text($content)->endCData();
-//                        $writer->writeCdata($content);
-//                        break;
-//                    case 'raw':
-//                        $writer->writeRaw($content);
-//                        break;
-//                    default:
-//                        throw new Exception("unknown format");
-//                }
-//            }else{
-//                $writer->text($item);
-//            }
         }
 
         $writer->endElement();
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return self::CONTENT_TYPE;
     }
@@ -223,7 +196,7 @@ class ArkXMLElement
      * @return ArkXMLContent|null
      * @since 0.3
      */
-    public function getContentByIndex(int $index)
+    public function getContentByIndex(int $index): ArkXMLContent
     {
         return ArkHelper::readTarget($this->contentArray, [$index]);
     }
@@ -234,30 +207,31 @@ class ArkXMLElement
      * @return ArkXMLElement[]
      * @since 0.3
      */
-    public function getSubNodesWithFilterConditions(string $tagName, array $attributes = [])
+    public function getSubNodesWithFilterConditions(string $tagName, array $attributes = []): array
     {
         $allSubElements = $this->getAllSubElements();
-//        echo __METHOD__.'@'.__LINE__.' -> '.(count($allSubElements)).PHP_EOL;
-        return array_filter($allSubElements, function ($item) use ($attributes, $tagName) {
-//            echo __METHOD__.'@'.__LINE__.' checking element tag is '.$item->getElementTag().PHP_EOL;
+
+        $filtered = [];
+        foreach ($allSubElements as $item) {
             if ($item->getElementTag() !== $tagName) {
-                return false;
+                continue;
             }
             foreach ($attributes as $attributeName => $attributeValue) {
-//                echo __METHOD__.'@'.__LINE__.' checking element attribute ['.$attributeName.'] is '.$item->getAttribute($attributeName).PHP_EOL;
                 if ($item->getAttribute($attributeName) !== $attributeValue) {
-                    return false;
+                    continue;
                 }
             }
-            return true;
-        });
+            $filtered[] = $item;
+        }
+
+        return $filtered;
     }
 
     /**
      * @return ArkXMLElement[]
      * @since 0.3
      */
-    public function getAllSubElements()
+    public function getAllSubElements(): array
     {
         $nodes = [];
         foreach ($this->contentArray as $content) {
@@ -291,7 +265,7 @@ class ArkXMLElement
      * @return string|null
      * @since 0.3
      */
-    public function getAttribute($name)
+    public function getAttribute(string $name): string
     {
         return ArkHelper::readTarget($this->attributeDictionary, [$name]);
     }
@@ -300,7 +274,7 @@ class ArkXMLElement
      * @return string
      * @since 0.3
      */
-    public function getTextContent()
+    public function getTextContent(): string
     {
         $text = '';
         foreach ($this->contentArray as $content) {
@@ -316,9 +290,9 @@ class ArkXMLElement
 
     /**
      * @return string
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function toXML()
+    public function toXML(): string
     {
         $writer = (new ArkXMLWriter());
         $this->compose($writer);

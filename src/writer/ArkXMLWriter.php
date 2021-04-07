@@ -4,10 +4,10 @@
 namespace sinri\ark\xml\writer;
 
 
-use Exception;
-use sinri\ark\core\ArkHelper;
 use sinri\ark\xml\entity\ArkXMLDocument;
 use sinri\ark\xml\entity\ArkXMLElement;
+use sinri\ark\xml\exception\ArkXMLComposeError;
+use sinri\ark\xml\exception\ArkXMLWriterSetupError;
 use XMLWriter;
 
 class ArkXMLWriter
@@ -27,7 +27,7 @@ class ArkXMLWriter
     /**
      * ArkXMLWriter constructor.
      * @param null|string $outputUri
-     * @throws Exception
+     * @throws ArkXMLWriterSetupError
      */
     public function __construct(string $outputUri=null)
     {
@@ -42,7 +42,7 @@ class ArkXMLWriter
     /**
      * @return XMLWriter
      */
-    public function getRawXMLWriter()
+    public function getRawXMLWriter(): XMLWriter
     {
         return $this->rawXMLWriter;
     }
@@ -50,12 +50,14 @@ class ArkXMLWriter
     /**
      * Create new xmlwriter using memory for string output
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLWriterSetupError
      */
-    protected function openMemory()
+    protected function openMemory(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->openMemory();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLWriterSetupError('Cannot create memory based instance of XMLWriter.');
+        }
         $this->outputTarget = null;
         return $this;
     }
@@ -64,12 +66,14 @@ class ArkXMLWriter
      * Create new xmlwriter using source uri for output
      * @param string $uri Output Target URI. A sample is 'php://output' for web XML display with non-download header
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLWriterSetupError
      */
-    protected function openUri(string $uri)
+    protected function openUri(string $uri): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->openUri($uri);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLWriterSetupError('Cannot create URI based instance of XMLWriter.');
+        }
         $this->outputTarget = $uri;
         return $this;
     }
@@ -79,7 +83,7 @@ class ArkXMLWriter
      * @param bool $flush Whether to flush the output buffer or not. Default is TRUE.
      * @return string
      */
-    public function getOutputInMemory($flush = true)
+    public function getOutputInMemory($flush = true): string
     {
         return $this->rawXMLWriter->outputMemory($flush);
     }
@@ -99,12 +103,14 @@ class ArkXMLWriter
      * Sets the string which will be used to indent each element/attribute of the resulting xml.
      * @param string $indentString
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function setIndentString(string $indentString)
+    public function setIndentString(string $indentString): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->setIndentString($indentString);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -112,131 +118,153 @@ class ArkXMLWriter
      * Toggles indentation on or off.
      * @param bool $indent
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function setIndent(bool $indent)
+    public function setIndent(bool $indent): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->setIndent($indent);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * End attribute
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endAttribute()
+    public function endAttribute(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endAttribute();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * End current CDATA
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endCData()
+    public function endCData(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endCdata();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current comment.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endComment()
+    public function endComment(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endComment();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current document.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endDocument()
+    public function endDocument(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endDocument();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current DTD attribute list.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endDtdAttlist()
+    public function endDtdAttlist(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endDtdAttlist();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current DTD element.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endDtdElement()
+    public function endDtdElement(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endDtdElement();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current DTD entity.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endDtdEntity()
+    public function endDtdEntity(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endDtdEntity();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the DTD of the document.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endDtd()
+    public function endDtd(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endDtd();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Ends the current element.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endElement()
+    public function endElement(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endElement();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function endPi()
+    public function endPi(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->endPi();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -245,12 +273,14 @@ class ArkXMLWriter
      * @param string $name The attribute name.
      * @param string $uri The namespace URI.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startAttributeNs(string $prefix, string $name, string $uri)
+    public function startAttributeNs(string $prefix, string $name, string $uri): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startAttributeNs($prefix, $name, $uri);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -258,36 +288,42 @@ class ArkXMLWriter
      * Starts an attribute.
      * @param string $name The attribute name.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startAttribute(string $name)
+    public function startAttribute(string $name): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startAttribute($name);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Starts a CDATA.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startCdata()
+    public function startCdata(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startCdata();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Starts a comment.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startComment()
+    public function startComment(): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startComment();
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -297,12 +333,14 @@ class ArkXMLWriter
      * @param string|null $encoding The encoding of the document as part of the XML declaration.
      * @param string|null $standalone yes or no.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startDocument(string $version = '1.0', string $encoding = NULL, string $standalone = NULL)
+    public function startDocument(string $version = '1.0', string $encoding = NULL, string $standalone = NULL): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startDocument($version, $encoding, $standalone);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -310,12 +348,14 @@ class ArkXMLWriter
      * Starts a DTD attribute list.
      * @param string $name The attribute list name.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startDtdAttlist(string $name)
+    public function startDtdAttlist(string $name): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startDtdAttlist($name);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -323,12 +363,14 @@ class ArkXMLWriter
      * Starts a DTD element.
      * @param string $qualifiedName The qualified name of the document type to create.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startDtdElement(string $qualifiedName)
+    public function startDtdElement(string $qualifiedName): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startDtdElement($qualifiedName);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -337,12 +379,14 @@ class ArkXMLWriter
      * @param string $name The name of the entity.
      * @param bool $isParameter
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startDtdEntity(string $name, bool $isParameter)
+    public function startDtdEntity(string $name, bool $isParameter): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startDtdEntity($name, $isParameter);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -352,12 +396,14 @@ class ArkXMLWriter
      * @param string $publicId The external subset public identifier.
      * @param string $systemId The external subset system identifier.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startDtd(string $qualifiedName, string $publicId, string $systemId)
+    public function startDtd(string $qualifiedName, string $publicId, string $systemId): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startDtd($qualifiedName, $publicId, $systemId);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -367,12 +413,14 @@ class ArkXMLWriter
      * @param string $name The element name.
      * @param string $uri The namespace URI.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startElementNs(string $prefix, string $name, string $uri)
+    public function startElementNs(string $prefix, string $name, string $uri): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startElementNs($prefix, $name, $uri);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -380,12 +428,14 @@ class ArkXMLWriter
      * Starts an element.
      * @param string $name The element name.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startElement(string $name)
+    public function startElement(string $name): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startElement($name);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -393,20 +443,19 @@ class ArkXMLWriter
      * Starts a processing instruction tag.
      * @param string $target The target of the processing instruction.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function startPi(string $target)
+    public function startPi(string $target): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->startPi($target);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * Writes a text.
-     * @param string $string The contents of the text.
-     * @return $this
-     * @throws Exception
      *
      * Notice:
      * Correct Escape
@@ -416,10 +465,17 @@ class ArkXMLWriter
      * `"` into `&quot;`
      * However,
      * Will Ignore `'`, not into `&apos;`
+     *
+     * @param string $string The contents of the text.
+     * @return $this
+     * @throws ArkXMLComposeError
      */
-    public function text(string $string){
+    public function text(string $string): ArkXMLWriter
+    {
         $done = $this->rawXMLWriter->text($string);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -430,11 +486,14 @@ class ArkXMLWriter
      * @param string $uri The namespace URI.
      * @param string $content The attribute value.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeAttributeNs ( string $prefix , string $name , string $uri , string $content ){
-        $done = $this->rawXMLWriter->writeAttributeNs($prefix,$name,$uri,$content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeAttributeNs(string $prefix, string $name, string $uri, string $content): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeAttributeNs($prefix, $name, $uri, $content);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -443,11 +502,14 @@ class ArkXMLWriter
      * @param string $name The name of the attribute.
      * @param string $value The value of the attribute.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeAttribute ( string $name , string $value ){
-        $done = $this->rawXMLWriter->writeAttribute($name,$value);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeAttribute(string $name, string $value): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeAttribute($name, $value);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -455,11 +517,14 @@ class ArkXMLWriter
      * Writes a full CDATA.
      * @param string $content The contents of the CDATA.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeCdata ( string $content ) {
+    public function writeCdata(string $content): ArkXMLWriter
+    {
         $done = $this->rawXMLWriter->writeCdata($content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -467,11 +532,14 @@ class ArkXMLWriter
      * Writes a full comment.
      * @param string $content The contents of the comment.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeComment ( string $content ){
+    public function writeComment(string $content): ArkXMLWriter
+    {
         $done = $this->rawXMLWriter->writeComment($content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -480,11 +548,14 @@ class ArkXMLWriter
      * @param string $name The name of the DTD attribute list.
      * @param string $content The content of the DTD attribute list.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeDtdAttlist ( string $name , string $content ) {
-        $done = $this->rawXMLWriter->writeDtdAttlist($name,$content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeDtdAttlist(string $name, string $content): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeDtdAttlist($name, $content);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -493,11 +564,14 @@ class ArkXMLWriter
      * @param string $name The name of the DTD element.
      * @param string $content The content of the element.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeDtdElement ( string $name , string $content ){
-        $done = $this->rawXMLWriter->writeDtdElement($name,$content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeDtdElement(string $name, string $content): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeDtdElement($name, $content);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -510,11 +584,14 @@ class ArkXMLWriter
      * @undocumented string $sysid
      * @undocumented string $ndataid
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeDtdEntity ( string $name , string $content){
-        $done = $this->rawXMLWriter->writeDtdEntity($name,$content,false,'','','');
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeDtdEntity(string $name, string $content): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeDtdEntity($name, $content, false, '', '', '');
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -525,11 +602,14 @@ class ArkXMLWriter
      * @param string $systemId The external subset system identifier.
      * @param string $subset The content of the DTD.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeDtd(string $name ,string $publicId,string $systemId,string $subset){
-        $done = $this->rawXMLWriter->writeDtd($name,$publicId,$systemId,$subset);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeDtd(string $name, string $publicId, string $systemId, string $subset): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeDtd($name, $publicId, $systemId, $subset);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -540,11 +620,14 @@ class ArkXMLWriter
      * @param string $uri The namespace URI.
      * @param string $content The element contents.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeElementNs ( string $prefix , string $name , string $uri , string $content ){
-        $done = $this->rawXMLWriter->writeElementNs($prefix,$name,$uri,$content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+    public function writeElementNs(string $prefix, string $name, string $uri, string $content): ArkXMLWriter
+    {
+        $done = $this->rawXMLWriter->writeElementNs($prefix, $name, $uri, $content);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -552,12 +635,14 @@ class ArkXMLWriter
      * @param string $name
      * @param string $content
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeElement ( string $name , string $content  )
+    public function writeElement(string $name, string $content): ArkXMLWriter
     {
         $done = $this->rawXMLWriter->writeElement($name, $content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -566,11 +651,14 @@ class ArkXMLWriter
      * @param string $target The target of the processing instruction.
      * @param string $content The content of the processing instruction.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writePi ( string $target , string $content ){
+    public function writePi(string $target, string $content): ArkXMLWriter
+    {
         $done = $this->rawXMLWriter->writePi($target, $content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
@@ -578,21 +666,24 @@ class ArkXMLWriter
      * Writes a raw xml text.
      * @param string $content The text string to write.
      * @return $this
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function writeRaw ( string $content ){
+    public function writeRaw(string $content): ArkXMLWriter
+    {
         $done = $this->rawXMLWriter->writeRaw($content);
-        ArkHelper::quickNotEmptyAssert(__METHOD__ . ' Error', $done);
+        if (!$done) {
+            throw new ArkXMLComposeError('XML Writer Error: Method [' . __METHOD__ . '] could not be done.');
+        }
         return $this;
     }
 
     /**
      * @param ArkXMLDocument $document
      * @return int|string
-     * @throws Exception
+     * @throws ArkXMLComposeError
      * @deprecated
      */
-    public function composeDocumentAndFlush($document)
+    public function composeDocumentAndFlush(ArkXMLDocument $document)
     {
         $document->compose($this);
         return $this->flush();
@@ -601,10 +692,10 @@ class ArkXMLWriter
     /**
      * @param ArkXMLElement $element
      * @return int|string
-     * @throws Exception
+     * @throws ArkXMLComposeError
      * @deprecated
      */
-    public function composeElementAndFlush($element)
+    public function composeElementAndFlush(ArkXMLElement $element)
     {
         $element->compose($this);
         return $this->flush();

@@ -13,6 +13,12 @@ use SimpleXMLElement;
  */
 class ArkXMLFormatter
 {
+    /**
+     * @param SimpleXMLElement|string $xml
+     * @param string|null $toEncoding
+     * @param string|string[]|null $fromEncoding
+     * @return false|string|string[]|null
+     */
     public static function formatXML($xml, $toEncoding = null, $fromEncoding = null)
     {
 

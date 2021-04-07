@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "027b7e0caa75d6fa4a2867b6f3f447fd",
+    "content-hash": "39cf8618f6e412bc340e2a71517dd85c",
     "packages": [
         {
             "name": "psr/log",
@@ -64,16 +64,16 @@
         },
         {
             "name": "sinri/ark-core",
-            "version": "2.7.2",
+            "version": "2.7.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sinri/Ark-Core.git",
-                "reference": "10f42c1bc3314d559ca75ce330784f5f8b728be0"
+                "reference": "58c4ca8442fee9006c0fed28069be20b0672ad04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sinri/Ark-Core/zipball/10f42c1bc3314d559ca75ce330784f5f8b728be0",
-                "reference": "10f42c1bc3314d559ca75ce330784f5f8b728be0",
+                "url": "https://api.github.com/repos/sinri/Ark-Core/zipball/58c4ca8442fee9006c0fed28069be20b0672ad04",
+                "reference": "58c4ca8442fee9006c0fed28069be20b0672ad04",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -108,9 +108,9 @@
             "description": "The core components of Ark 2",
             "support": {
                 "issues": "https://github.com/sinri/Ark-Core/issues",
-                "source": "https://github.com/sinri/Ark-Core/tree/master"
+                "source": "https://github.com/sinri/Ark-Core/tree/2.7.9"
             },
-            "time": "2020-06-19T03:40:51+00:00"
+            "time": "2021-03-17T08:38:03+00:00"
         }
     ],
     "packages-dev": [],
@@ -121,7 +121,9 @@
     "prefer-lowest": false,
     "platform": {
         "ext-xmlwriter": "*",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "ext-mbstring": "*",
+        "ext-dom": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"

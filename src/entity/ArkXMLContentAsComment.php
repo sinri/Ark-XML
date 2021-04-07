@@ -4,6 +4,7 @@
 namespace sinri\ark\xml\entity;
 
 
+use sinri\ark\xml\exception\ArkXMLComposeError;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 /**
@@ -26,13 +27,14 @@ class ArkXMLContentAsComment
         $this->content = $content;
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return self::CONTENT_TYPE;
     }
 
     /**
-     * @inheritDoc
+     * @param ArkXMLWriter $writer
+     * @throws ArkXMLComposeError
      */
     public function compose(ArkXMLWriter $writer)
     {

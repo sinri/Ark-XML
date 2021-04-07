@@ -4,6 +4,7 @@
 namespace sinri\ark\xml\entity;
 
 
+use sinri\ark\xml\exception\ArkXMLComposeError;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 /**
@@ -25,7 +26,12 @@ class ArkXMLContentAsText
      */
     protected $raw;
 
-    public function __construct($content, $raw = false)
+    /**
+     * ArkXMLContentAsText constructor.
+     * @param string $content
+     * @param bool $raw
+     */
+    public function __construct(string $content, bool $raw = false)
     {
         $this->raw = $raw;
         $this->content = $content;
@@ -35,19 +41,21 @@ class ArkXMLContentAsText
      * @param string $content
      * @return ArkXMLContentAsText
      */
-    public static function makeFullQuotedText(string $content)
+    public static function makeFullQuotedText(string $content): ArkXMLContentAsText
     {
-        $content = htmlspecialchars($content, ENT_QUOTES | ENT_XML1, 'UTF-8');
+        $encoding = 'UTF-8';
+        $content = htmlspecialchars($content, ENT_QUOTES | ENT_XML1, $encoding);
         return new ArkXMLContentAsText($content, true);
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return self::CONTENT_TYPE;
     }
 
     /**
-     * @inheritDoc
+     * @param ArkXMLWriter $writer
+     * @throws ArkXMLComposeError
      */
     public function compose(ArkXMLWriter $writer)
     {

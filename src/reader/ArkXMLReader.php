@@ -12,10 +12,10 @@ class ArkXMLReader
      * @param string $xmlString
      * @return bool|ArkXMLElement
      */
-    public static function simplyParseXMLToElement($xmlString)
+    public static function simplyParseXMLToElement(string $xmlString)
     {
-        $xml=simplexml_load_string($xmlString);
-        if($xml===false){
+        $xml = simplexml_load_string($xmlString);
+        if ($xml === false) {
             return false;
         }
 
@@ -26,9 +26,10 @@ class ArkXMLReader
      * @param string $xmlFilePath
      * @return bool|ArkXMLElement
      */
-    public static function simplyParseXMLFileToElement($xmlFilePath){
-        $xml=simplexml_load_file($xmlFilePath);
-        if($xml===false){
+    public static function simplyParseXMLFileToElement(string $xmlFilePath)
+    {
+        $xml = simplexml_load_file($xmlFilePath);
+        if ($xml === false) {
             return false;
         }
 

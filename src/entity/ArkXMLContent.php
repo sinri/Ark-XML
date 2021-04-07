@@ -4,7 +4,7 @@
 namespace sinri\ark\xml\entity;
 
 
-use Exception;
+use sinri\ark\xml\exception\ArkXMLComposeError;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 /**
@@ -17,12 +17,12 @@ trait ArkXMLContent
     /**
      * @return string
      */
-    abstract public function getContentType();
+    abstract public function getContentType(): string;
 
     /**
      * @param ArkXMLWriter $writer
      * @return void
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
     abstract public function compose(ArkXMLWriter $writer);
 

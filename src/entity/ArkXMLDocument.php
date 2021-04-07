@@ -4,7 +4,7 @@
 namespace sinri\ark\xml\entity;
 
 
-use Exception;
+use sinri\ark\xml\exception\ArkXMLComposeError;
 use sinri\ark\xml\writer\ArkXMLWriter;
 
 class ArkXMLDocument
@@ -43,7 +43,7 @@ class ArkXMLDocument
     /**
      * @return mixed
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return $this->version;
     }
@@ -52,7 +52,7 @@ class ArkXMLDocument
      * @param mixed $version
      * @return ArkXMLDocument
      */
-    public function setVersion($version)
+    public function setVersion($version): ArkXMLDocument
     {
         $this->version = $version;
         return $this;
@@ -70,7 +70,7 @@ class ArkXMLDocument
      * @param mixed $encoding
      * @return ArkXMLDocument
      */
-    public function setEncoding($encoding)
+    public function setEncoding($encoding): ArkXMLDocument
     {
         $this->encoding = $encoding;
         return $this;
@@ -88,7 +88,7 @@ class ArkXMLDocument
      * @param mixed $standalone
      * @return ArkXMLDocument
      */
-    public function setStandalone($standalone)
+    public function setStandalone($standalone): ArkXMLDocument
     {
         $this->standalone = $standalone;
         return $this;
@@ -96,9 +96,9 @@ class ArkXMLDocument
 
     /**
      * @param ArkXMLWriter $writer
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function compose($writer)
+    public function compose(ArkXMLWriter $writer)
     {
         $writer->startDocument($this->version, $this->encoding, $this->standalone);
         $this->rootElement->compose($writer);
@@ -107,9 +107,9 @@ class ArkXMLDocument
 
     /**
      * @return string
-     * @throws Exception
+     * @throws ArkXMLComposeError
      */
-    public function toXML()
+    public function toXML(): string
     {
         $writer = (new ArkXMLWriter());
         $this->compose($writer);
